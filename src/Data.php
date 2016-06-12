@@ -1,4 +1,4 @@
-<?php
+<?hh
 /**
  * libSSE-php
  *
@@ -40,17 +40,17 @@ class Data implements DataInterface
     /**
      * @var DataInterface
      */
-    private $mechnism;
+    private DataInterface $mechnism;
 
     /**
      * @var array
      */
-    private static $registers = array();
+    protected static Map<string, string> $registers = Map{};
 
     /**
      * @var bool
      */
-    private static $initial = false;
+    protected static bool $initial = false;
 
     /**
      * Data constructor.
@@ -78,7 +78,7 @@ class Data implements DataInterface
      * @param string $class
      * @return void
      */
-    public static function register($mechnism, $class)
+    public static function register(string $mechnism, string $class)
     {
         static::$registers[$mechnism] = $class;
     }
@@ -86,9 +86,9 @@ class Data implements DataInterface
     /**
      * Fire the initial job
      */
-    public static function fireOnInitial()
+    public static function fireOnInitial(): void
     {
-        $classes = array(
+        $classes = [
             'apc'       =>'Sse\\Mechnisms\\ApcMechnism',
             'file'      => 'Sse\\Mechnisms\\FileMechnism',
             'memcache'  => 'Sse\\Mechnisms\\MemcacheMechnism',
@@ -96,7 +96,7 @@ class Data implements DataInterface
             'pdo'       => 'Sse\\Mechnisms\\PdoMechnism',
             'redis'     => 'Sse\\Mechnisms\\RedisMechnism',
             'xcache'    => 'Sse\\Mechnisms\\XCacheMechnism',
-        );
+        ];
 
         foreach ($classes as $class => $mechnism) {
             static::register($class, $mechnism);

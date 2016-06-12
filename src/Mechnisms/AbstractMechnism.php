@@ -43,7 +43,7 @@ abstract class AbstractMechnism implements DataInterface
      * Seconds of inactive timeout
      * @var int
      */
-    protected $lifetime = 6000;
+    protected int $lifetime = 6000;
 
     public function __construct(array $parameter)
     {

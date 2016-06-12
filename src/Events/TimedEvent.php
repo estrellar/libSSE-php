@@ -1,4 +1,4 @@
-<?php
+<?hh
 /**
  * libSSE-php
  *
@@ -43,15 +43,15 @@ abstract class TimedEvent implements Event
      *
      * @var int
      */
-    protected $period = 1;
+    protected int $period = 1;
     /**
      * The creation time of the event. 
      *
      * @var int
      */
-    private $start = 0;
+    private int $start = 0;
 
-    public function check()
+    public function check(): bool
     {
         if ($this->start === 0)
             $this->start = time();

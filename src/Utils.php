@@ -1,4 +1,4 @@
-<?php
+<?hh
 /**
  * libSSE-php
  *
@@ -42,7 +42,7 @@ abstract class Utils
      * @param string $string data to be processed
      * @return string
      */
-    public static function sseData($string)
+    public static function sseData(string $string): string
     {
         return 'data:' . str_replace("\n","\ndata: ",$string);
     }
@@ -54,7 +54,7 @@ abstract class Utils
      * @param string $data Event Data
      * @param string $name Event Name
      */
-    public static function sseBlock($id, $data, $name = null)
+    public static function sseBlock($id, string $data, ?string $name = null)
     {
         static::sseSend("id: $id\n");
         if (strlen($name) && $name !== null) {
@@ -77,7 +77,7 @@ abstract class Utils
      *
      * @return int
      */
-    public static function timeMod($start, $interval)
+    public static function timeMod(int $start, int $interval): int
     {
         return static::timeDiff($start) % $interval;
     }
@@ -88,7 +88,7 @@ abstract class Utils
      * @param int $start
      * @return int
      */
-    public static function timeDiff($start)
+    public static function timeDiff(int $start): int
     {
         return time() - $start;
     }

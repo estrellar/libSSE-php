@@ -1,4 +1,4 @@
-<?php
+<?hh
 /**
  * libSSE-php
  *
@@ -33,30 +33,30 @@
 
 namespace Sse;
 
-use ArrayAccess;
+//use ArrayAccess;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class SSE implements ArrayAccess{
+class SSE {
 
     /**
      * @var array
      */
-    private $handlers = array();
+    private Map<string, Event> $handlers = Map{};
 
     /**
      * Event ID.
      *
      * @var int
      */
-    private $id = 0;
+    private int $id = 0;
 
     /**
      * Config Setting
-     * @var array
+     * @var Map
      */
-    private $config = array(
+    private Map<string, mixed> $config = Map {
         'sleep_time' => 0.5,                // seconds to sleep after the data has been sent
         'exec_limit' => 600,                // the time limit of the script in seconds
         'client_reconnect' => 1,            // the time client to reconnect after connection has lost in seconds
@@ -64,7 +64,7 @@ class SSE implements ArrayAccess{
         'keep_alive_time' => 300,           // The interval of sending a signal to keep the connection alive
         'is_reconnect' => false,            // A read-only flag indicates whether the user reconnects
         'use_chunked_encoding' => false,    // Allow chunked encoding
-    );
+    };
 
     /**
      * SSE constructor.
@@ -72,7 +72,7 @@ class SSE implements ArrayAccess{
      * @param Request $request
      * @return void
      */
-    public function __construct(Request $request = null)
+    public function __construct(?Request $request = null)
     {
         //if the HTTP header 'Last-Event-ID' is set
         //then it's a reconnect from the client
@@ -91,7 +91,7 @@ class SSE implements ArrayAccess{
      * @param Event $handler the event handler
      * @return void
      */
-    public function addEventListener($event, Event $handler)
+    public function addEventListener(string $event, Event $handler): void
     {
         $this->handlers[$event] = $handler;
     }
@@ -102,7 +102,7 @@ class SSE implements ArrayAccess{
      * @param string $event the event name
      * @return void
      */
-    public function removeEventListener($event)
+    public function removeEventListener(string $event)
     {
         unset($this->handlers[$event]);
     }
@@ -110,9 +110,9 @@ class SSE implements ArrayAccess{
     /**
      * Get all the listeners
      *
-     * @return array
+     * @return Map<string, Event>
      */
-    public function getEventListeners()
+    public function getEventListeners(): Map<string, Event>
     {
         return $this->handlers;
     }
@@ -121,7 +121,7 @@ class SSE implements ArrayAccess{
      * Has listener
      * @return bool
      */
-    public function hasEventListener()
+    public function hasEventListener(): bool
     {
         return count($this->handlers) !== 0;
     }
@@ -131,7 +131,8 @@ class SSE implements ArrayAccess{
      *
      * @return null
      */
-    public function start(){
+    public function start(): void
+    {
         $response = $this->createResponse();
         $response->send();
     }
@@ -141,30 +142,29 @@ class SSE implements ArrayAccess{
      *
      * @return StreamedResponse
      */
-    public function createResponse()
+    public function createResponse(): StreamedResponse
     {
         $this->init();
-        $that = $this;
-        $callback = function () use ($that) {
+        $callback = function () {
             $start = time(); // Record start time
-            echo 'retry: ' . ($that->client_reconnect * 1000) . "\n";	// Set the retry interval for the client
+            echo 'retry: ' . ($this->get('client_reconnect') * 1000) . "\n";	// Set the retry interval for the client
             while (true) {
                 // Leave the loop if there are no more handlers
-                if (!$that->hasEventListener()) {
+                if (!$this->hasEventListener()) {
                     break;
                 }
 
-                if (Utils::timeMod($start, $that->keep_alive_time) == 0) {
+                if (Utils::timeMod($start, $this->get('keep_alive_time')) == 0) {
                     // No updates needed, send a comment to keep the connection alive.
                     // From https://developer.mozilla.org/en-US/docs/Server-sent_events/Using_server-sent_events
                     echo ': ' . sha1(mt_rand()) . "\n\n";
                 }
                 
                 // Start to check for updates
-                foreach ($that->getEventListeners() as $event => $handler) {
+                foreach ($this->getEventListeners() as $event => $handler) {
                     if ($handler->check()) { // Check if the data is avaliable
                         $data = $handler->update(); // Get the data
-                        $id = $that->getNewId();
+                        $id = $this->getNewId();
                         Utils::sseBlock($id, $data, $event);
                         
                         // Make sure the data has been sent to the client
@@ -174,27 +174,27 @@ class SSE implements ArrayAccess{
                 }
 
                 // Break if the time exceed the limit
-                if ($that->exec_limit !== 0 && Utils::timeDiff($start) > $that->exec_limit) {
+                if ($this->get('exec_limit') !== 0 && Utils::timeDiff($start) > $this->get('exec_limit')) {
                     break;
                 }
                 // Sleep
-                usleep($that->sleep_time * 1000000);
+                usleep($this->get('sleep_time') * 1000000);
             }
         };
 
 
-        $response = new StreamedResponse($callback, Response::HTTP_OK, array(
+        $response = new StreamedResponse($callback, Response::HTTP_OK, [
             'Content-Type' => 'text/event-stream',
             'Cache-Control' => 'no-cache',
             'X-Accel-Buffering' => 'off' // Disables FastCGI Buffering on Nginx
-        ));
+        ]);
 
-        if($this->allow_cors){
+        if($this->get('allow_cors')) {
             $response->headers->set('Access-Control-Allow-Origin', '*');
             $response->headers->set('Access-Control-Allow-Credentials', 'true');
         }
 
-        if($this->use_chunked_encoding)
+        if($this->get('use_chunked_encoding'))
             $response->headers->set('Transfer-encoding', 'chunked');
 
         return $response;
@@ -205,7 +205,7 @@ class SSE implements ArrayAccess{
      *
      * @return int
      */
-    public function getNewId()
+    public function getNewId(): int
     {
         $this->id += 1;
         return $this->id;
@@ -216,7 +216,7 @@ class SSE implements ArrayAccess{
      *
      * @return void
      */
-    protected function init()
+    protected function init(): void
     {
         @set_time_limit(0); // Disable time limit
 
@@ -240,7 +240,7 @@ class SSE implements ArrayAccess{
      *
      * @return mixed
      */
-    public function get($key)
+    public function get(string $key)
     {
         return $this->config[$key];
     }
@@ -252,7 +252,7 @@ class SSE implements ArrayAccess{
      *
      * @return mixed
      */
-    public function __get($key)
+    public function __get(string $key): mixed
     {
         return $this->get($key);
     }
@@ -263,9 +263,9 @@ class SSE implements ArrayAccess{
      * @param mixed $value
      * @return void
      */
-    public function set($key, $value)
+    public function set(string $key, mixed $value)
     {
-        if (in_array($key, array('is_reconnect'))) {
+        if (in_array($key, ['is_reconnect'])) {
             throw new \InvalidArgumentException('is_reconnected is an read-only flag');
         }
         $this->config[$key] = $value;
@@ -277,7 +277,7 @@ class SSE implements ArrayAccess{
      * @param mixed $value
      * @return void
      */
-    public function __set($key, $value)
+    public function __set(string $key, mixed $value)
     {
         $this->set($key, $value);
     }
@@ -288,7 +288,7 @@ class SSE implements ArrayAccess{
      * @param string $offset
      * @return bool
      */
-    public function offsetExists($offset)
+    public function offsetExists(string $offset):bool
     {
         return isset($this->config[$offset]);
     }
@@ -298,7 +298,7 @@ class SSE implements ArrayAccess{
      * @param string $offset
      * @return mixed
      */
-    public function offsetGet($offset)
+    public function offsetGet(string $offset): mixed
     {
         return $this->get($offset);
     }
@@ -310,7 +310,7 @@ class SSE implements ArrayAccess{
      * @param mixed $value
      * @return void
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet(string $offset, $value)
     {
         $this->set($offset, $value);
     }
@@ -321,9 +321,9 @@ class SSE implements ArrayAccess{
      * @param  string $offset
      * @return void
      */
-    public function offsetUnset($offset)
+    public function offsetUnset(string $offset): void
     {
-        $keys = array('sleep_time', 'exec_limit', 'client_reconnect', 'allow_cors', 'keep_alive_time', 'is_reconnect', 'use_chunked_encoding');
+        $keys = ['sleep_time', 'exec_limit', 'client_reconnect', 'allow_cors', 'keep_alive_time', 'is_reconnect', 'use_chunked_encoding'];
         if (in_array($offset, $keys)) {
             throw new \InvalidArgumentException($offset . ' is not allowed to removed');
         }

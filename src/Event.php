@@ -1,4 +1,4 @@
-<?php
+<?hh //strict
 
 /**
  * libSSE-php
@@ -44,12 +44,12 @@ interface Event
      *
      * @return bool
      */
-    public function check();
+    public function check(): bool;
 
     /**
      * Get Updated Data.
      *
      * @return string
      */
-    public function update();
+    public function update(): string;
 }
