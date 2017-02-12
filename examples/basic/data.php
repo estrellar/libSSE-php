@@ -22,7 +22,7 @@ class TimeEvent implements Event {
 $sse = new SSE();
 
 // You can limit how long the SSE handler to save resources 
-$sse->exec_limit = 10;
+$sse->set('exec_limit', 10);
 
 // Add the event handler to the SSE handler
 $sse->addEventListener('time', new TimeEvent());

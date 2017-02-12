@@ -80,7 +80,7 @@ class LatestMessage implements Event {
 };
 
 // A 30 second time limit can prevent running out of resources quickly.
-$sse->exec_limit = 30;
+$sse->set('exec_limit', 30);
 
 // Add the event handlers, if an empty name is given as the event name,
 // it means trigger the default message event on the client.

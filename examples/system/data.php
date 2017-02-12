@@ -27,11 +27,11 @@ function get_server_load() {
 class SysEvent extends TimedEvent { // Beware: use SSETimedEvent for sending data at a regular interval
     public $period = 5; // the interval in seconds
     public function update(){
-        return json_encode(array('load' => get_server_load(), 'time' => time()));
+        return json_encode(['load' => get_server_load(), 'time' => time()]);
     }
 }
 
 $sse = new SSE();
-$sse->exec_limit = 60;
+$sse->set('exec_limit', 60);
 $sse->addEventListener('data', new SysEvent());
 $sse->start();
