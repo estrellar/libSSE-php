@@ -45,7 +45,7 @@ Server-side(PHP):
 Client-side(javascript):
 ```javascript
 	var sse = new EventSource('path/to/your/sse/script.php');
-	sse.addEventListener('event_name',function(e){
+	sse.addEventListener('event_name', function(e){
 		var data = e.data;
 		//handle your data here
 	},false);
@@ -79,12 +79,12 @@ Direct access of property is kept with magic method for backward compatible.
 	
 	$sse = new SSE();
 	
-	$sse->exec_limit = 10; //the execution time of the loop in seconds. Default: 600. Set to 0 to allow the script to run as long as possible.
-	$sse->sleep_time = 1; //The time to sleep after the data has been sent in seconds. Default: 0.5.
-	$sse->client_reconnect = 10; //the time for the client to reconnect after the connection has lost in seconds. Default: 1.
-	$sse->use_chunked_encodung = true; //Use chunked encoding. Some server may get problems with this and it defaults to false
-	$sse->keep_alive_time = 600; //The interval of sending a signal to keep the connection alive. Default: 300 seconds.
-	$sse->allow_cors = true; //Allow cross-domain access? Default: false. If you want others to access this must set to true.
+	$sse->set('exec_limit', 10); //the execution time of the loop in seconds. Default: 600. Set to 0 to allow the script to run as long as possible.
+	$sse->set('sleep_time', 1); //The time to sleep after the data has been sent in seconds. Default: 0.5.
+	$sse->set('client_reconnect', 10); //the time for the client to reconnect after the connection has lost in seconds. Default: 1.
+	$sse->set('use_chunked_encodung', true); //Use chunked encoding. Some server may get problems with this and it defaults to false
+	$sse->set('keep_alive_time', 600); //The interval of sending a signal to keep the connection alive. Default: 300 seconds.
+	$sse->set('allow_cors', true); //Allow cross-domain access? Default: false. If you want others to access this must set to true.
 	?>
 
 ## Updates
@@ -145,6 +145,8 @@ There's some settings in the library that can fix it.
  ```   
 ### Laravel
 Please use [laravel-sse](https://github.com/tonyhhyip/laravel-sse).
+
+
 
 ## Contribution
 Please see the [CONTRIBUTING.md](CONTRIBUTING.md).
