@@ -207,7 +207,7 @@ class SSE implements ArrayAccess
      */
     public function isTick()
     {
-        return $this->getUptime() % $this->keep_alive_time === 0;
+        return $this->getUptime() % $this->get('keep_alive_time') === 0;
     }
 
     /**
@@ -215,7 +215,7 @@ class SSE implements ArrayAccess
      */
     public function sleep()
     {
-        usleep($this->sleep_time * 1000000);
+        usleep($this->get('sleep_time') * 1000000);
     }
 
     /**
