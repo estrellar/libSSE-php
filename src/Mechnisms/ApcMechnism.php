@@ -56,7 +56,7 @@ class ApcMechnism extends AbstractMechnism
      */
     public function get($key)
     {
-        return apc_fetch($key);
+        return apcu_fetch($key);
     }
 
     /**
@@ -64,7 +64,7 @@ class ApcMechnism extends AbstractMechnism
      */
     public function set($key, $value)
     {
-        return apc_store($key, $value, $this->lifetime);
+        return apcu_store($key, $value, $this->lifetime);
     }
 
     /**
@@ -72,7 +72,7 @@ class ApcMechnism extends AbstractMechnism
      */
     public function delete($key)
     {
-        return apc_delete($key);
+        return apcu_delete($key);
     }
 
     /**
@@ -80,6 +80,6 @@ class ApcMechnism extends AbstractMechnism
      */
     public function has($key)
     {
-        return apc_exists($key);
+        return apcu_exists($key);
     }
 }
