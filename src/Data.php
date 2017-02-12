@@ -104,41 +104,70 @@ class Data implements DataInterface
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function get($key)
     {
         return $this->mechnism->get($key);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function set($key, $value)
     {
         return $this->mechnism->set($key, $value);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function delete($key)
     {
         return $this->mechnism->delete($key);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function has($key)
     {
         return $this->mechnism->has($key);
     }
 
+    /**
+     * @param $key
+     * @return mixed
+     */
     public function __get($key)
     {
         return $this->get($key);
     }
 
+    /**
+     * @param $key
+     * @param $value
+     * @return void
+     */
     public function __set($key, $value)
     {
         $this->set($key, $value);
     }
 
+    /**
+     * @param $name
+     * @return void
+     */
     public function __unset($name)
     {
         $this->delete($name);
     }
 
+    /**
+     * @param $key
+     * @return bool
+     */
     public function __isset($key)
     {
         return $this->has($key);
