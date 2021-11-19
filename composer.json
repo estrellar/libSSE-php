@@ -4,9 +4,7 @@
   "description": "An easy-to-use, object-oriented library for Server-Sent Events",
   "type": "library",
   "keywords": ["sse"],
-  "homepage": "https://github.com/licson0729/libSSE-php",
   "license": "MIT",
-
   "authors": [
     {
       "name": "Licson Lee",
